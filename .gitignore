@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+users.db
+.jwt_secret
+output/
+reference_voices/user_*/
+reference_voices/*.wav
+!reference_voices/.gitkeep
+server.out.log
+server.err.log
