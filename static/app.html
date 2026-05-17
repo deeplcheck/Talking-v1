@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>声音工坊 - 控制台</title>
+  <style>
+    :root {
+      --bg: #f4f0e8;
+      --panel: rgba(255, 252, 247, 0.94);
+      --ink: #1d2433;
+      --muted: #687083;
+      --line: rgba(29, 36, 51, 0.08);
+      --primary: #c05b37;
+      --primary-dark: #943f21;
+      --secondary: #28485f;
+      --shadow: 0 24px 72px rgba(34, 31, 24, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(40, 72, 95, 0.16), transparent 22%),
+        radial-gradient(circle at top left, rgba(192, 91, 55, 0.24), transparent 28%),
+        linear-gradient(180deg, #f6f0e5 0%, #f1e8db 100%);
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 32px));
+      margin: 24px auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .topbar, .grid > section {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar {
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: clamp(30px, 3vw, 40px);
+    }
+
+    .title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+    }
+
+    section {
+      padding: 24px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
+
+    textarea, select, input[type="file"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-size: 15px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+      line-height: 1.8;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .row {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    }
+
+    .secondary {
+      background: white;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .status, .result {
+      min-height: 24px;
+      color: var(--secondary);
+      line-height: 1.7;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    .badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(40, 72, 95, 0.08);
+      color: var(--secondary);
+      font-size: 13px;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="title">
+        <h1>声音工坊控制台</h1>
+        <p id="welcome">正在读取账号信息...</p>
+      </div>
+      <div class="top-actions">
+        <button class="secondary" id="refresh-health">检查 GPU</button>
+        <button class="secondary" id="logout-btn">退出登录</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section>
+        <h2>生成语音</h2>
+        <div class="badge-list">
+          <span class="badge">支持中文</span>
+          <span class="badge">默认输出 MP3</span>
+          <span class="badge">RTX 2070 加速</span>
+        </div>
+        <textarea id="text-input" placeholder="把你的口播文案粘贴到这里，建议一次不超过 500 字。"></textarea>
+
+        <div class="controls">
+          <div class="row">
+            <select id="voice-select"></select>
+            <select id="language-select">
+              <option value="zh-cn">中文</option>
+              <option value="en">英文</option>
+              <option value="ja">日语</option>
+            </select>
+          </div>
+          <button class="primary" id="generate-btn">开始生成</button>
+          <div class="status" id="generate-status"></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>音色与结果</h2>
+        <p class="hint">“我的声音”需要你先上传参考音频。建议使用 10 到 30 秒干净人声，单人说话、无背景音乐。</p>
+        <input type="file" id="reference-file" accept=".wav,.mp3,.m4a,.flac,.ogg">
+        <div class="controls">
+          <button class="secondary" id="upload-btn">上传到“我的声音”</button>
+          <div class="status" id="upload-status"></div>
+        </div>
+
+        <div class="result" id="result-box">生成后的音频会显示在这里。</div>
+        <audio id="audio-player" class="hidden" controls></audio>
+        <div class="controls">
+          <a id="download-link" class="hidden" download>下载 MP3</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem("voice_token");
+    if (!token) {
+      window.location.href = "/";
+    }
+
+    const headers = {
+      "Authorization": `Bearer ${token}`
+    };
+
+    const welcome = document.getElementById("welcome");
+    const voiceSelect = document.getElementById("voice-select");
+    const generateStatus = document.getElementById("generate-status");
+    const uploadStatus = document.getElementById("upload-status");
+    const resultBox = document.getElementById("result-box");
+    const audioPlayer = document.getElementById("audio-player");
+    const downloadLink = document.getElementById("download-link");
+    const generateBtn = document.getElementById("generate-btn");
+
+    function withCacheBust(url) {
+      const separator = url.includes("?") ? "&" : "?";
+      return `${url}${separator}t=${Date.now()}`;
+    }
+
+    function logout() {
+      localStorage.removeItem("voice_token");
+      localStorage.removeItem("voice_user");
+      window.location.href = "/";
+    }
+
+    async function loadMe() {
+      const response = await fetch("/api/me", { headers });
+      if (response.status === 401) {
+        logout();
+        return;
+      }
+      const data = await response.json();
+      welcome.textContent = `你好，${data.username}。今天可以直接生成、试听和下载。`;
+    }
+
+    async function loadVoices() {
+      const response = await fetch("/api/voices", { headers });
+      const data = await response.json();
+      voiceSelect.innerHTML = "";
+
+      data.items.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = `${item.name}${item.available ? "" : "（未准备）"}`;
+        option.disabled = !item.available;
+        voiceSelect.appendChild(option);
+      });
+    }
+
+    async function checkHealth() {
+      const response = await fetch("/health");
+      const data = await response.json();
+      generateStatus.textContent = data.gpu
+        ? `GPU 可用：${data.device}`
+        : "当前未检测到 GPU，加速不可用。";
+    }
+
+    async function uploadReference() {
+      const fileInput = document.getElementById("reference-file");
+      if (!fileInput.files.length) {
+        uploadStatus.textContent = "请先选择一个音频文件。";
+        return;
+      }
+      uploadStatus.textContent = "上传中...";
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      const response = await fetch("/api/upload-reference", {
+        method: "POST",
+        headers,
+        body: formData
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        uploadStatus.textContent = data.detail || "上传失败";
+        return;
+      }
+      uploadStatus.textContent = "上传成功，已更新“我的声音”。";
+      await loadVoices();
+    }
+
+    async function generateAudio() {
+      const text = document.getElementById("text-input").value.trim();
+      const voiceId = voiceSelect.value;
+      const language = document.getElementById("language-select").value;
+
+      if (!text) {
+        generateStatus.textContent = "请先输入要生成的文案。";
+        return;
+      }
+
+      generateBtn.disabled = true;
+      generateStatus.textContent = "正在自动断句并生成自然口播，请稍等...";
+      resultBox.textContent = "系统会自动加入停顿、调整语速和口播参数。";
+      audioPlayer.classList.add("hidden");
+      downloadLink.classList.add("hidden");
+
+      try {
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text, voice_id: voiceId, language })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          generateStatus.textContent = data.detail || "生成失败";
+          return;
+        }
+
+        generateStatus.textContent = data.message;
+        resultBox.textContent = "生成完成，可以试听或下载。";
+        audioPlayer.src = withCacheBust(data.audio_url);
+        audioPlayer.classList.remove("hidden");
+        downloadLink.href = data.download_url;
+        downloadLink.textContent = "下载 MP3";
+        downloadLink.classList.remove("hidden");
+      } catch (error) {
+        generateStatus.textContent = error.message || "生成失败";
+      } finally {
+        generateBtn.disabled = false;
+      }
+    }
+
+    document.getElementById("logout-btn").addEventListener("click", logout);
+    document.getElementById("refresh-health").addEventListener("click", checkHealth);
+    document.getElementById("upload-btn").addEventListener("click", uploadReference);
+    document.getElementById("generate-btn").addEventListener("click", generateAudio);
+
+    loadMe().then(loadVoices).then(checkHealth).catch(logout);
+  </script>
+</body>
+</html>
