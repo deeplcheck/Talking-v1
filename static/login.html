@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>声音工坊 - 登录</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --card: rgba(255, 251, 244, 0.92);
+      --ink: #1d2433;
+      --muted: #6d7485;
+      --line: rgba(29, 36, 51, 0.08);
+      --accent: #d86b43;
+      --accent-dark: #b44f2c;
+      --shadow: 0 22px 60px rgba(58, 42, 28, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(216, 107, 67, 0.28), transparent 28%),
+        radial-gradient(circle at right 20%, rgba(28, 82, 117, 0.18), transparent 24%),
+        linear-gradient(135deg, #f6f1e7 0%, #efe6d8 100%);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .shell {
+      width: min(960px, 100%);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      border-radius: 28px;
+      overflow: hidden;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero, .panel { padding: 44px; }
+    .hero {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0)),
+        linear-gradient(145deg, #1d3146 0%, #3a485c 100%);
+      color: #fffaf1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(34px, 4vw, 48px);
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      color: rgba(255, 250, 241, 0.82);
+      line-height: 1.8;
+    }
+
+    .stats {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background: rgba(255,255,255,0.88);
+    }
+
+    input:focus {
+      border-color: rgba(216, 107, 67, 0.5);
+      box-shadow: 0 0 0 4px rgba(216, 107, 67, 0.12);
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 15px 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .alt {
+      background: white;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .message {
+      min-height: 24px;
+      color: var(--accent-dark);
+      font-size: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .shell { grid-template-columns: 1fr; }
+      .hero, .panel { padding: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">私人部署 · AI 配音</div>
+        <h1>把口播文案变成你自己的声音资产</h1>
+        <p>注册后即可在浏览器里完成文案输入、音色选择、语音生成和下载，不依赖第三方 SaaS 后台。</p>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <strong>XTTS v2</strong>
+          中文多语种语音克隆，支持自定义参考音色。
+        </div>
+        <div class="stat">
+          <strong>本地私有化</strong>
+          用户账号、音频文件和生成结果都在你自己的电脑上。
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div>
+        <h2>登录或注册</h2>
+        <p class="sub">首次使用先注册，成功后会自动跳转到生成页面。</p>
+      </div>
+
+      <form id="auth-form">
+        <label>
+          用户名
+          <input id="username" name="username" placeholder="请输入用户名" required>
+        </label>
+        <label>
+          密码
+          <input id="password" name="password" type="password" placeholder="至少 6 位密码" required>
+        </label>
+        <button type="submit" data-mode="login">登录</button>
+        <button type="button" class="alt" id="register-btn">注册新账号</button>
+      </form>
+
+      <div class="message" id="message"></div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("auth-form");
+    const registerBtn = document.getElementById("register-btn");
+    const message = document.getElementById("message");
+
+    async function submitAuth(mode) {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      message.textContent = "";
+
+      try {
+        const response = await fetch(`/api/${mode}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.detail || "请求失败");
+        }
+        localStorage.setItem("voice_token", data.token);
+        localStorage.setItem("voice_user", JSON.stringify(data.user));
+        window.location.href = "/app";
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await submitAuth("login");
+    });
+
+    registerBtn.addEventListener("click", async () => {
+      await submitAuth("register");
+    });
+  </script>
+</body>
+</html>
